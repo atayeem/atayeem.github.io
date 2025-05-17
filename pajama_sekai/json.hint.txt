@@ -1,0 +1,15 @@
+{
+    "meta": {
+        "bpm": (a number greater than 0 continuous)
+        "song": (string with link to song)
+        "bg": (string with link to background image)
+    }
+    
+    "tiles": [
+        {
+            "position": (a number from 0 to 5 continuous)
+            "time":     (a number greater than 0 continuous, measured in beats)
+            "duration": (a number greater than 0 continuous, measured in beats)
+        }
+    ]
+}
