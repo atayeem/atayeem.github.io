@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "none",
+        "outDir": ".",
+        "rootDir": ".",
+        "strict": true,
+        "noEmitOnError": true
+    }
+}
