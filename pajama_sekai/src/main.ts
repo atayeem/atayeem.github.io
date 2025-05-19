@@ -118,8 +118,8 @@ const sketch = (p: p5) => {
 
         tiles: LevelTile[];
 
-        song_data: p5.SoundFile;
-        bg_data: p5.Image;
+        song_data?: p5.SoundFile;
+        bg_data?: p5.Image;
 
         squares_activated: boolean[];
         t_start: number;
@@ -213,13 +213,16 @@ const sketch = (p: p5) => {
                         time: startTime,
                         duration: duration
                     });
-                    console.log(this.tiles.at(-1));
+                    console.log(this.tiles[this.tiles.length - 1]);
                     delete this.active_notes[i];
                 }
             }
         }
 
         private drawStage() {
+            if (!this.bg_data)
+                return;
+
             p.push();
         
             p.image(this.bg_data, 0, 0, p.width, p.height);
@@ -293,7 +296,7 @@ const sketch = (p: p5) => {
         }
 
         handleMousePress() {
-            if (!this.loaded)
+            if (!this.song_data || this.bg_data)
                 return;
 
             if (!this.started) {
