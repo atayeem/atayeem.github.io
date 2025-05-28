@@ -2,7 +2,7 @@
 // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
 
 // the link to your model provided by Teachable Machine export panel
-const URL = "https://teachablemachine.withgoogle.com/models/A2GQO7gRw/";
+const URL = "https://teachablemachine.withgoogle.com/models/oCLgncn75/";
 let model, webcam, ctx, labelContainer, maxPredictions;
 
 async function init() {
@@ -39,6 +39,13 @@ async function loop(timestamp) {
     window.requestAnimationFrame(loop);
 }
 
+function handlePrediction(name) {
+    switch (name) {
+        default:
+            break;
+    }
+}
+
 async function predict() {
     // Prediction #1: run input through posenet
     // estimatePose can take in an image, video or canvas html element
@@ -57,6 +64,7 @@ async function predict() {
     }
 
     labelContainer.childNodes[0].innerHTML = max_pred_name + ": " + max_val.toFixed(2);
+    handlePrediction(max_pred_name);
 
     // finally draw the poses
     drawPose(pose);
