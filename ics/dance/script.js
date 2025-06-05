@@ -1,17 +1,4 @@
-
-/**
- * Pose Detection Application
- * Using TensorFlow.js and Teachable Machine
- * Created: January 2024
- */
-
-// Model URL from Teachable Machine
-//**************************************************
-//* as before, paste your lnk below
 let URL = "https://teachablemachine.withgoogle.com/models/oCLgncn75/";
-
-
-
 
 let model, webcam, ctx, labelContainer, maxPredictions;
 
@@ -20,46 +7,27 @@ let poseStates = {};
 let explosionActive = false;
 let explosionSound = new Audio('explsn.mp3');
 
-function setModelURL(url) {
-    URL = url;
-    // Reset states when URL changes
-    poseStates = {};
-    explosionActive = false;
-}
-
-/**
- * Initialize the application
- */
 async function init() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-
     const video = document.getElementById('instructionVideo');
     video.volume = 0.4;
 
-    try {
-        model = await tmPose.load(modelURL, metadataURL);
+        model = await tmPose.load(URL + "model.json", URL + "metadata.json");
         maxPredictions = model.getTotalClasses();
 
-        const width = 600;
-        const height = 600;
-        const flip = true;
-        webcam = new tmPose.Webcam(width, height, flip);
-        await webcam.setup();
-        await webcam.play();
-        window.requestAnimationFrame(loop);
+    webcam = new tmPose.Webcam(600, 600, true);
+    await webcam.setup();
+    await webcam.play();
+    window.requestAnimationFrame(loop);
 
-        const canvas = document.getElementById("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        ctx = canvas.getContext("2d");
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) {
-            labelContainer.appendChild(document.createElement("div"));
-        }
-    } catch (error) {
-        console.error("Error initializing model:", error);
+    const canvas = document.getElementById("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    ctx = canvas.getContext("2d");
+    labelContainer = document.getElementById("label-container");
+    for (let i = 0; i < maxPredictions; i++) {
+        labelContainer.appendChild(document.createElement("div"));
     }
+
 }
 
 async function loop(timestamp) {
