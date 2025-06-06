@@ -1,3 +1,4 @@
+// BEGIN do not touch
 let URL = "https://teachablemachine.withgoogle.com/models/oCLgncn75/";
 
 let model, webcam, ctx, labelContainer, maxPredictions;
@@ -11,8 +12,8 @@ async function init() {
     const video = document.getElementById('instructionVideo');
     video.volume = 0.4;
 
-        model = await tmPose.load(URL + "model.json", URL + "metadata.json");
-        maxPredictions = model.getTotalClasses();
+    model = await tmPose.load(URL + "model.json", URL + "metadata.json");
+    maxPredictions = model.getTotalClasses();
 
     webcam = new tmPose.Webcam(600, 600, true);
     await webcam.setup();
@@ -35,6 +36,7 @@ async function loop(timestamp) {
     await predict();
     window.requestAnimationFrame(loop);
 }
+
 const newSound = new Audio('explsn.mp3');
 function playExplosionSound() {
     newSound.volume = 1.0;
@@ -62,39 +64,6 @@ async function predict() {
     }
 }
 
-function checkPose(prediction, video) {
-    const time = video.currentTime;
-    const prob = prediction.probability;
-
-    // Only respond to pose1 through pose5 labels
-    const poseNumber = prediction.className.toLowerCase().replace(/[^0-9]/g, '');
-    const isPoseLabel = prediction.className.toLowerCase().includes('pose') && poseNumber >= 1 && poseNumber <= 9;
-
-    if (!isPoseLabel) return;
-
-    if (!poseStates[`pose${poseNumber}`]) {
-        poseStates[`pose${poseNumber}`] = {
-            triggered: false,
-            firstWindowTriggered: false,
-            secondWindowTriggered: false
-        };
-    }
-
-    if (prob > 0.8 && !explosionActive) {
-        const poseState = poseStates[`pose${poseNumber}`];
-
-        switch(poseNumber) {
-            case '1':
-                if (time >= 0.0 && time <= 1.0 && !poseState.triggered) {
-                    triggerExplosion(poseState);
-                }
-                break;
-
-            case '2':
-                break;
-        }
-    }
-}
 
 function triggerExplosion(poseState) {
     explosionActive = true;
@@ -155,18 +124,15 @@ async function playInstructionVideo() {
 
     async function processFrame() {
         if (!video.paused && !video.ended) {
-            try {
-                const { pose, posenetOutput } = await model.estimatePose(video);
-                videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
+        const { pose, posenetOutput } = await model.estimatePose(video);
+        videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
 
-                if (pose) {
-                    tmPose.drawKeypoints(pose.keypoints, 0.6, videoCtx);
-                    tmPose.drawSkeleton(pose.keypoints, 0.6, videoCtx);
-                }
-            } catch (error) {
-                console.error('Pose detection error:', error);
-            }
-            requestAnimationFrame(processFrame);
+        if (pose) {
+            tmPose.drawKeypoints(pose.keypoints, 0.6, videoCtx);
+            tmPose.drawSkeleton(pose.keypoints, 0.6, videoCtx);
+        }
+
+        requestAnimationFrame(processFrame);
         }
     }
 
@@ -182,21 +148,51 @@ function stopInstructionVideo() {
     video.pause();
     video.currentTime = 0;
     const canvas = video.parentElement.querySelector('canvas');
-    if (canvas) {
+    
+    if (canvas)
         canvas.remove();
-    }
-    pose1Triggered = false;
-    pose2Triggered = false;
-    pose3FirstWindowTriggered = false;
-    pose3SecondWindowTriggered = false;
-    pose4Triggered = false;
-    pose5Triggered = false;
 }
 
 function stopWebcam() {
     if (webcam) {
         webcam.stop();
         const canvas = document.getElementById("canvas");
+// END do not touch
+
+function checkPose(prediction, video) {
+    const time = video.currentTime;
+    const prob = prediction.probability;
+
+    // Only respond to pose1 through pose5 labels
+    const poseNumber = prediction.className.toLowerCase().replace(/[^0-9]/g, '');
+    const isPoseLabel = prediction.className.toLowerCase().includes('pose') && poseNumber >= 1 && poseNumber <= 9;
+
+    if (!isPoseLabel) return;
+
+    if (!poseStates[`pose${poseNumber}`]) {
+        poseStates[`pose${poseNumber}`] = {
+            triggered: false,
+            firstWindowTriggered: false,
+            secondWindowTriggered: false
+        };
+    }
+
+    if (prob > 0.8 && !explosionActive) {
+        const poseState = poseStates[`pose${poseNumber}`];
+
+        switch(poseNumber) {
+            case '1':
+                if (time >= 0.0 && time <= 1.0 && !poseState.triggered) {
+                    triggerExplosion(poseState);
+                }
+                break;
+
+            case '2':
+                break;
+        }
+    }
+}
+
         const ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
