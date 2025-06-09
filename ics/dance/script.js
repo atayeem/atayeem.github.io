@@ -216,7 +216,7 @@ async function playInstructionVideo() {
 
     video.play();
 
-    async function processFrame() {
+    /*async function processFrame() {
         if (true) {
             try {
                 const { pose, posenetOutput } = await model.estimatePose(video);
@@ -237,7 +237,7 @@ async function playInstructionVideo() {
         processFrame();
     } else {
         console.log("failure playInstructionVideo");
-    }
+    }*/
 }
 
 function stopInstructionVideo() {
