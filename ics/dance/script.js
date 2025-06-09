@@ -104,9 +104,12 @@ function checkPose(prediction, video) {
     // this is the regex to remove all but numbers 0-9
     const poseNumber = prediction.className.replace(/[^0-9]/g, '');
 
-    if (prob > 0.7) {
+    if (prob > 0.7 && !explosionActive) {
         const poseState = poseStates[`pose${poseNumber}`];
 
+        if (poseState.triggered)
+            return;
+        
         switch(poseNumber) {
             case '1':
                 if (0.0 <= time && time <= 1.0)
