@@ -14,11 +14,14 @@ async function init() {
 
     model = await tmPose.load(URL + "model.json", URL + "metadata.json");
     maxPredictions = model.getTotalClasses();
+    alert("loaded model");
 
     webcam = new tmPose.Webcam(600, 600, true);
     await webcam.setup();
     await webcam.play();
+    alert("started webcam");
     window.requestAnimationFrame(loop);
+    alert("requestAnimationFrame");
 
     const canvas = document.getElementById("canvas");
     canvas.width = width;
