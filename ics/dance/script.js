@@ -1,17 +1,4 @@
-
-/**
- * Pose Detection Application
- * Using TensorFlow.js and Teachable Machine
- * Created: January 2024
- */
-
-// Model URL from Teachable Machine
-//**************************************************
-//* as before, paste your lnk below
 let URL = "https://teachablemachine.withgoogle.com/models/oCLgncn75/";
-
-
-
 
 let model, webcam, ctx, labelContainer, maxPredictions;
 
@@ -248,15 +235,8 @@ function stopInstructionVideo() {
     video.pause();
     video.currentTime = 0;
     const canvas = video.parentElement.querySelector('canvas');
-    if (canvas) {
+    if (canvas)
         canvas.remove();
-    }
-    pose1Triggered = false;
-    pose2Triggered = false;
-    pose3FirstWindowTriggered = false;
-    pose3SecondWindowTriggered = false;
-    pose4Triggered = false;
-    pose5Triggered = false;
 }
 
 function stopWebcam() {
