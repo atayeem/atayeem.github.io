@@ -1,5 +1,17 @@
-// BEGIN do not touch
+
+/**
+ * Pose Detection Application
+ * Using TensorFlow.js and Teachable Machine
+ * Created: January 2024
+ */
+
+// Model URL from Teachable Machine
+//**************************************************
+//* as before, paste your lnk below
 let URL = "https://teachablemachine.withgoogle.com/models/oCLgncn75/";
+
+
+
 
 let model, webcam, ctx, labelContainer, maxPredictions;
 
@@ -8,6 +20,16 @@ let poseStates = {};
 let explosionActive = false;
 let explosionSound = new Audio('explsn.mp3');
 
+function setModelURL(url) {
+    URL = url;
+    // Reset states when URL changes
+    poseStates = {};
+    explosionActive = false;
+}
+
+/**
+ * Initialize the application
+ */
 async function init() {
     const modelURL = URL + "model.json";
     const metadataURL = URL + "metadata.json";
@@ -46,10 +68,9 @@ async function loop(timestamp) {
     window.requestAnimationFrame(loop);
 }
 
-const newSound = new Audio('explsn.mp3');
 function playExplosionSound() {
-    newSound.volume = 1.0;
-    newSound.play();
+    explosionSound.volume = 1.0;
+    explosionSound.play();
 }
 
 async function predict() {
@@ -73,6 +94,78 @@ async function predict() {
     }
 }
 
+function checkPose(prediction, video) {
+    const time = video.currentTime;
+    const prob = prediction.probability;
+
+    // Only respond to pose1 through pose5 labels
+    const poseNumber = prediction.className.toLowerCase().replace(/[^0-9]/g, '');
+    const isPoseLabel = prediction.className.toLowerCase().includes('pose') && poseNumber >= 1 && poseNumber <= 5;
+
+    if (!isPoseLabel) return;
+
+    if (!poseStates[`pose${poseNumber}`]) {
+        poseStates[`pose${poseNumber}`] = {
+            triggered: false,
+            firstWindowTriggered: false,
+            secondWindowTriggered: false
+        };
+    }
+
+    if (prob > 0.8 && !explosionActive) {
+        const poseState = poseStates[`pose${poseNumber}`];
+
+        switch(poseNumber) {
+            case '1':
+                if (0.0 <= time && time <= 1.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '2':
+                if ( 1.0 <= time && time <=  3.0 ||
+                    14.0 <= time && time <= 16.0 ||
+                    19.0 <= time && time <= 21.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '3':
+                if (2.0 <= time && time <= 5.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '4':
+                if ( 5.0 <= time && time <=  7.0 ||
+                    13.0 <= time && time <= 14.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '5':
+                if (7.0 <= time && time <= 10.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '6':
+                if (10.0 <= time && time <= 13.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '7':
+                if (16.0 <= time && time <= 20.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '8':
+                if (21.0 <= time && time <= 29.0)
+                    triggerExplosion(poseState);
+                break;
+
+            case '9':
+                if (29.0 <= time && time <= 31.0)
+                    triggerExplosion(poseState);
+                break;
+        }
+    }
+}
 
 function triggerExplosion(poseState) {
     explosionActive = true;
@@ -133,22 +226,25 @@ async function playInstructionVideo() {
 
     async function processFrame() {
         if (!video.paused && !video.ended) {
-        const { pose, posenetOutput } = await model.estimatePose(video);
-        videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
+            try {
+                const { pose, posenetOutput } = await model.estimatePose(video);
+                videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
 
-        if (pose) {
-            tmPose.drawKeypoints(pose.keypoints, 0.6, videoCtx);
-            tmPose.drawSkeleton(pose.keypoints, 0.6, videoCtx);
-        }
-
-        requestAnimationFrame(processFrame);
+                if (pose) {
+                    tmPose.drawKeypoints(pose.keypoints, 0.6, videoCtx);
+                    tmPose.drawSkeleton(pose.keypoints, 0.6, videoCtx);
+                }
+            } catch (error) {
+                console.error('Pose detection error:', error);
+            }
+            requestAnimationFrame(processFrame);
         }
     }
 
     if (model) {
         processFrame();
     } else {
-        console.log("https://teachablemachine.withgoogle.com/models/oCLgncn75/");
+        console.log("https://teachablemachine.withgoogle.com/models/CMBhs4EAW/");
     }
 }
 
@@ -157,92 +253,21 @@ function stopInstructionVideo() {
     video.pause();
     video.currentTime = 0;
     const canvas = video.parentElement.querySelector('canvas');
-    
-    if (canvas)
+    if (canvas) {
         canvas.remove();
+    }
+    pose1Triggered = false;
+    pose2Triggered = false;
+    pose3FirstWindowTriggered = false;
+    pose3SecondWindowTriggered = false;
+    pose4Triggered = false;
+    pose5Triggered = false;
 }
 
 function stopWebcam() {
     if (webcam) {
         webcam.stop();
         const canvas = document.getElementById("canvas");
-// END do not touch
-
-function checkPose(prediction, video) {
-    const time = video.currentTime;
-    const prob = prediction.probability;
-
-    // Only respond to pose1 through pose5 labels
-    const poseNumber = prediction.className.toLowerCase().replace(/[^0-9]/g, '');
-    const isPoseLabel = prediction.className.toLowerCase().includes('pose') && poseNumber >= 1 && poseNumber <= 9;
-
-    if (!isPoseLabel) return;
-
-    if (!poseStates[`pose${poseNumber}`]) {
-        poseStates[`pose${poseNumber}`] = {
-            triggered: false,
-            firstWindowTriggered: false,
-            secondWindowTriggered: false
-        };
-    }
-
-    if (prob > 0.7 && !explosionActive) {
-        const poseState = poseStates[`pose${poseNumber}`];
-
-        if (poseState.triggered) return;
-        
-        switch(poseNumber) {
-            case '1':
-                if (0.0 <= time && time <= 1.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '2':
-                if ( 1.0 <= time && time <=  3.0 ||
-                    14.0 <= time && time <= 16.0 ||
-                    19.0 <= time && time <= 21.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '3':
-                if (2.0 <= time && time <= 5.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '4':
-                if ( 5.0 <= time && time <=  7.0 ||
-                    13.0 <= time && time <= 14.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '5':
-                if (7.0 <= time && time <= 10.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '6':
-                if (10.0 <= time && time <= 13.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '7':
-                if (16.0 <= time && time <= 20.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '8':
-                if (21.0 <= time && time <= 29.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '9':
-                if (29.0 <= time && time <= 31.0)
-                    triggerExplosion(poseState);
-                break;
-        }
-    }
-}
-
         const ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
