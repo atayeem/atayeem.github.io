@@ -95,24 +95,16 @@ async function predict() {
 }
 
 function checkPose(prediction, video) {
+    if (explosionActive)
+        return;
+    
     const time = video.currentTime;
     const prob = prediction.probability;
 
-    // Only respond to pose1 through pose5 labels
-    const poseNumber = prediction.className.toLowerCase().replace(/[^0-9]/g, '');
-    const isPoseLabel = prediction.className.toLowerCase().includes('pose') && poseNumber >= 1 && poseNumber <= 5;
+    // this is the regex to remove all but numbers 0-9
+    const poseNumber = prediction.className.replace(/[^0-9]/g, '');
 
-    if (!isPoseLabel) return;
-
-    if (!poseStates[`pose${poseNumber}`]) {
-        poseStates[`pose${poseNumber}`] = {
-            triggered: false,
-            firstWindowTriggered: false,
-            secondWindowTriggered: false
-        };
-    }
-
-    if (prob > 0.8 && !explosionActive) {
+    if (prob > 0.7) {
         const poseState = poseStates[`pose${poseNumber}`];
 
         switch(poseNumber) {
@@ -245,7 +237,7 @@ async function playInstructionVideo() {
     if (model) {
         processFrame();
     } else {
-        console.log("https://teachablemachine.withgoogle.com/models/CMBhs4EAW/");
+        console.log("failure playInstructionVideo");
     }
 }
 
