@@ -74,8 +74,8 @@ async function predict() {
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
 
             if (prediction[i].probability > max_confidence) {
-                max_confidence = prediction[i].probability;
-                max_pose = prediction[i].classname;
+                max_confidence = prediction[i].probability.toFixed(2);
+                max_pose = prediction[i].className;
             }
             labelContainer.childNodes[i].innerHTML = classPrediction;
 
