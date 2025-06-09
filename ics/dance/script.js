@@ -166,7 +166,6 @@ function triggerExplosion(poseState) {
     explosionActive = true;
     poseState.triggered = true;
     playExplosionSound();
-    alert("explosion");
     setTimeout(() => { explosionActive = false; }, 300);
 }
 
