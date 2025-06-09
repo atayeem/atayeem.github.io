@@ -66,14 +66,24 @@ async function predict() {
         const prediction = await model.predict(posenetOutput);
         const video = document.getElementById('instructionVideo');
 
+        let max_confidence = 0;
+        let max_pose = "";
+        
         for (let i = 0; i < maxPredictions; i++) {
             const classPrediction =
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+
+            if (prediction[i].probability > max_confidence) {
+                max_confidence = prediction[i].probability;
+                max_pose = prediction[i].classname;
+            }
             labelContainer.childNodes[i].innerHTML = classPrediction;
 
             // Check pose dynamically
             checkPose(prediction[i], video);
         }
+
+        document.getElementById('what-pose').innerHTML = max_pose + ": " + max_confidence
 
         drawPose(pose, explosionActive);
     } catch (error) {
