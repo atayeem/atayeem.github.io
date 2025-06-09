@@ -9,29 +9,35 @@ let explosionActive = false;
 let explosionSound = new Audio('explsn.mp3');
 
 async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+
     const video = document.getElementById('instructionVideo');
     video.volume = 0.4;
 
-    model = await tmPose.load(URL + "model.json", URL + "metadata.json");
-    maxPredictions = model.getTotalClasses();
-    alert("loaded model");
+    try {
+        model = await tmPose.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
 
-    webcam = new tmPose.Webcam(600, 600, true);
-    await webcam.setup();
-    await webcam.play();
-    alert("started webcam");
-    window.requestAnimationFrame(loop);
-    alert("requestAnimationFrame");
+        const width = 600;
+        const height = 600;
+        const flip = true;
+        webcam = new tmPose.Webcam(width, height, flip);
+        await webcam.setup();
+        await webcam.play();
+        window.requestAnimationFrame(loop);
 
-    const canvas = document.getElementById("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    ctx = canvas.getContext("2d");
-    labelContainer = document.getElementById("label-container");
-    for (let i = 0; i < maxPredictions; i++) {
-        labelContainer.appendChild(document.createElement("div"));
+        const canvas = document.getElementById("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        ctx = canvas.getContext("2d");
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) {
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    } catch (error) {
+        console.error("Error initializing model:", error);
     }
-
 }
 
 async function loop(timestamp) {
