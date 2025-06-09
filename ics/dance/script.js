@@ -217,7 +217,7 @@ async function playInstructionVideo() {
     video.play();
 
     async function processFrame() {
-        if (!video.paused && !video.ended) {
+        if (true) {
             try {
                 const { pose, posenetOutput } = await model.estimatePose(video);
                 videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
