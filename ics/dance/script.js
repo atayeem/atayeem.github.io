@@ -104,53 +104,53 @@ function checkPose(prediction, video) {
         
         switch(poseNumber) {
             case '1':
-                if (0.0 <= time && time <= 1.0)
+                if (0.0 <= time && time <= 2.0)
                     triggerExplosion(1, 0);
                 break;
 
             case '2':
-                if ( 1.0 <= time && time <=  3.0)
+                if ( 0.0 <= time && time <=  4.0)
                     triggerExplosion(2, 0);
-                if (14.0 <= time && time <= 16.0)
+                if (13.0 <= time && time <= 17.0)
                     triggerExplosion(2, 1);
-                if (19.0 <= time && time <= 21.0)
+                if (18.0 <= time && time <= 22.0)
                     triggerExplosion(2, 2);
                 break;
 
             case '3':
-                if (2.0 <= time && time <= 5.0)
+                if (1.0 <= time && time <= 6.0)
                     triggerExplosion(3, 0);
                 break;
 
             case '4':
-                if ( 5.0 <= time && time <=  7.0)
+                if ( 4.0 <= time && time <=  8.0)
                     triggerExplosion(4, 0);
-                if (13.0 <= time && time <= 14.0)
+                if (12.0 <= time && time <= 15.0)
                     triggerExplosion(4, 1);
                 break;
 
             case '5':
-                if (7.0 <= time && time <= 10.0)
+                if (6.0 <= time && time <= 11.0)
                     triggerExplosion(5, 0);
                 break;
 
             case '6':
-                if (10.0 <= time && time <= 13.0)
+                if (9.0 <= time && time <= 14.0)
                     triggerExplosion(6, 0);
                 break;
 
             case '7':
-                if (16.0 <= time && time <= 20.0)
+                if (15.0 <= time && time <= 21.0)
                     triggerExplosion(7, 0);
                 break;
 
             case '8':
-                if (21.0 <= time && time <= 29.0)
+                if (20.0 <= time && time <= 30.0)
                     triggerExplosion(8, 0);
                 break;
 
             case '9':
-                if (29.0 <= time && time <= 31.0)
+                if (28.0 <= time && time <= 32.0)
                     triggerExplosion(9, 0);
                 break;
         }
