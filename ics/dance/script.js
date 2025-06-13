@@ -1,201 +1,62 @@
-let URL = "https://teachablemachine.withgoogle.com/models/oCLgncn75/";
+// More API functions here:
+// https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
 
+const URL = 'https://teachablemachine.withgoogle.com/models/oCLgncn75/';
 let model, webcam, ctx, labelContainer, maxPredictions;
 
-// Dynamic pose tracking
-let poseStates = {};
-let explosionActive = false;
-let explosionSound = new Audio('explsn.mp3');
+let exploding_now = false;
 
-function setModelURL(url) {
-    URL = url;
-    // Reset states when URL changes
-    poseStates = {};
-    explosionActive = false;
+const THRESHOLD_POSE_CONFIDENCE = 0.5;
+
+const explosion_sound = new Audio("explsn.mp3");
+
+function triggerExplosion() {
+    explosion_sound.play();
+    exploding_now = true;
+
+    setTimeout(() => {
+        exploding_now = false;
+    }, 500);
 }
 
-/**
- * Initialize the application
- */
-async function init() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
+/*
+Architecture:
+buttons -> start_all -> loop -> [predict -> drawPose, loop]
+*/
 
-    const video = document.getElementById('instructionVideo');
-    video.volume = 0.4;
+async function start_all() {
+    const modelURL = URL + 'model.json';
+    const metadataURL = URL + 'metadata.json';
 
-    try {
-        model = await tmPose.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
+    // load the model and metadata
+    // Refer to tmPose.loadFromFiles() in the API to support files from a file picker
+    model = await tmPose.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
 
-        const width = 600;
-        const height = 600;
-        const flip = true;
-        webcam = new tmPose.Webcam(width, height, flip);
-        await webcam.setup();
-        await webcam.play();
-        window.requestAnimationFrame(loop);
-
-        const canvas = document.getElementById("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        ctx = canvas.getContext("2d");
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) {
-            labelContainer.appendChild(document.createElement("div"));
-        }
-    } catch (error) {
-        console.error("Error initializing model:", error);
-    }
-}
-
-async function loop(timestamp) {
-    webcam.update();
-    await predict();
+    // set up webcam
+    webcam = new tmPose.Webcam(400, 400, true); // width, height, flip
+    await webcam.setup(); // request access to the webcam
+    webcam.play();
     window.requestAnimationFrame(loop);
-}
 
-function playExplosionSound() {
-    explosionSound.volume = 1.0;
-    explosionSound.play();
-}
-
-async function predict() {
-    try {
-        const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-        const prediction = await model.predict(posenetOutput);
-        const video = document.getElementById('instructionVideo');
-
-        let max_confidence = 0;
-        let max_pose = "";
-        
-        for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-
-            if (prediction[i].probability > max_confidence) {
-                max_confidence = prediction[i].probability.toFixed(2);
-                max_pose = prediction[i].className;
-            }
-            labelContainer.childNodes[i].innerHTML = classPrediction;
-
-            // Check pose dynamically
-            checkPose(prediction[i], video);
-        }
-
-        document.getElementById('what-pose').innerHTML = max_pose + ": " + max_confidence
-
-        drawPose(pose, explosionActive);
-    } catch (error) {
-        console.error("Error in predict:", error);
+    // append/get elements to the DOM
+    const canvas = document.getElementById('canvas');
+    canvas.width = 200; canvas.height = 200;
+    ctx = canvas.getContext('2d');
+    labelContainer = document.getElementById('label-container');
+    for (let i = 0; i < maxPredictions; i++) { // and class labels
+        labelContainer.appendChild(document.createElement('div'));
     }
 }
 
-function checkPose(prediction, video) {
-    if (explosionActive)
-        return;
-    
-    const time = video.currentTime;
-    const prob = prediction.probability;
-
-    // this is the regex to remove all but numbers 0-9
-    const poseNumber = prediction.className.replace(/[^0-9]/g, '');
-
-    if (prob > 0.7 && !explosionActive) {
-        const poseState = poseStates[`pose${poseNumber}`];
-
-        if (poseState.triggered)
-            return;
-        
-        switch(poseNumber) {
-            case '1':
-                if (0.0 <= time && time <= 1.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '2':
-                if ( 1.0 <= time && time <=  3.0 ||
-                    14.0 <= time && time <= 16.0 ||
-                    19.0 <= time && time <= 21.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '3':
-                if (2.0 <= time && time <= 5.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '4':
-                if ( 5.0 <= time && time <=  7.0 ||
-                    13.0 <= time && time <= 14.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '5':
-                if (7.0 <= time && time <= 10.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '6':
-                if (10.0 <= time && time <= 13.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '7':
-                if (16.0 <= time && time <= 20.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '8':
-                if (21.0 <= time && time <= 29.0)
-                    triggerExplosion(poseState);
-                break;
-
-            case '9':
-                if (29.0 <= time && time <= 31.0)
-                    triggerExplosion(poseState);
-                break;
-        }
-    }
-}
-
-function triggerExplosion(poseState) {
-    explosionActive = true;
-    poseState.triggered = true;
-    playExplosionSound();
-    setTimeout(() => { explosionActive = false; }, 300);
-}
-
-function drawPose(pose, explode) {
-    if (webcam.canvas) {
-        ctx.drawImage(webcam.canvas, 0, 0);
-        if (pose) {
-            const minPartConfidence = 0.2;
-            if (explode) {
-                pose.keypoints.forEach(keypoint => {
-                    if (keypoint.score > minPartConfidence) {
-                        const scale = 3;
-                        ctx.beginPath();
-                        ctx.arc(keypoint.position.x, keypoint.position.y, 10 * scale, 0, 2 * Math.PI);
-                        ctx.fillStyle = '#FF0000';
-                        ctx.fill();
-                    }
-                });
-            } else {
-                tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
-                tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
-            }
-        }
-    }
-}
-
-async function playInstructionVideo() {
+async function start_video() {
     const video = document.getElementById('instructionVideo');
     const videoSrc = video.getAttribute('data-video-src') || 'vid.mp4';
     video.src = videoSrc;
     const videoContainer = video.parentElement;
 
     video.addEventListener('timeupdate', () => {
+        video_time = video.currentTime;
         const minutes = Math.floor(video.currentTime / 60);
         const seconds = Math.floor(video.currentTime % 60);
         document.getElementById('videoTime').textContent = 
@@ -212,48 +73,154 @@ async function playInstructionVideo() {
 
     videoContainer.style.position = 'relative';
     videoContainer.appendChild(videoCanvas);
-    const videoCtx = videoCanvas.getContext('2d');
 
     video.play();
-
-    /*async function processFrame() {
-        if (true) {
-            try {
-                const { pose, posenetOutput } = await model.estimatePose(video);
-                videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
-
-                if (pose) {
-                    tmPose.drawKeypoints(pose.keypoints, 0.6, videoCtx);
-                    tmPose.drawSkeleton(pose.keypoints, 0.6, videoCtx);
-                }
-            } catch (error) {
-                console.error('Pose detection error:', error);
-            }
-            requestAnimationFrame(processFrame);
-        }
-    }
-
-    if (model) {
-        processFrame();
-    } else {
-        console.log("failure playInstructionVideo");
-    }*/
 }
 
-function stopInstructionVideo() {
+function checkPose(prediction, video) {
+    const time = video.currentTime;
+    const prob = prediction.probability;
+
+    // this is the regex to remove all but numbers 0-9
+    const poseNumber = prediction.className.replace(/[^0-9]/g, '');
+
+    if (prob > THRESHOLD_POSE_CONFIDENCE) {
+        
+        switch(poseNumber) {
+            case '1':
+                if (0.0 <= time && time <= 1.0)
+                    triggerExplosion();
+                break;
+
+            case '2':
+                if ( 1.0 <= time && time <=  3.0 ||
+                    14.0 <= time && time <= 16.0 ||
+                    19.0 <= time && time <= 21.0)
+                    triggerExplosion();
+                break;
+
+            case '3':
+                if (2.0 <= time && time <= 5.0)
+                    triggerExplosion();
+                break;
+
+            case '4':
+                if ( 5.0 <= time && time <=  7.0 ||
+                    13.0 <= time && time <= 14.0)
+                    triggerExplosion();
+                break;
+
+            case '5':
+                if (7.0 <= time && time <= 10.0)
+                    triggerExplosion();
+                break;
+
+            case '6':
+                if (10.0 <= time && time <= 13.0)
+                    triggerExplosion();
+                break;
+
+            case '7':
+                if (16.0 <= time && time <= 20.0)
+                    triggerExplosion();
+                break;
+
+            case '8':
+                if (21.0 <= time && time <= 29.0)
+                    triggerExplosion();
+                break;
+
+            case '9':
+                if (29.0 <= time && time <= 31.0)
+                    triggerExplosion();
+                break;
+        }
+    }
+}
+
+function stop_video() {
     const video = document.getElementById('instructionVideo');
     video.pause();
     video.currentTime = 0;
     const canvas = video.parentElement.querySelector('canvas');
+
     if (canvas)
         canvas.remove();
 }
 
-function stopWebcam() {
+function stop_webcam() {
     if (webcam) {
         webcam.stop();
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+async function loop(_timestamp) {
+    webcam.update(); // update the webcam frame
+    await predict();
+    window.requestAnimationFrame(loop);
+}
+
+async function predict() {
+    try {
+    // Prediction #1: run input through posenet
+    // estimatePose can take in an image, video or canvas html element
+    const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+    // Prediction 2: run input through teachable machine classification model
+    const prediction = await model.predict(posenetOutput);
+
+    let highest_tag = "NONE";
+    let highest_confidence = 0.0;
+    let highest_prediction = null;
+
+    for (let i = 0; i < maxPredictions; i++) {
+        let confidence = prediction[i].probability;
+        let tag = prediction[i].className;
+
+        let text_to_write = tag + ': ' + confidence.toFixed(2);
+
+        if (confidence > highest_confidence) {
+            highest_confidence = confidence;
+            highest_tag = tag;
+            highest_prediction = prediction[i];
+            document.getElementById("most-confident-prediction").innerHTML = text_to_write;
+        }
+        
+        labelContainer.childNodes[i].innerHTML = text_to_write;
+    }
+
+    checkPose(highest_prediction, document.getElementById('instructionVideo'));
+
+    // finally draw the poses
+    drawPose(pose);
+    }
+    catch (e) {
+        alert(e);
+    }
+}
+
+
+function drawPose(pose) {
+    if (webcam.canvas) {
+        ctx.drawImage(webcam.canvas, 0, 0);
+        if (pose) {
+            const minPartConfidence = 0.5;
+            if (exploding_now) {
+                pose.keypoints.forEach(keypoint => {
+                    if (keypoint.score > minPartConfidence) {
+                        const scale = 3;
+                        ctx.beginPath();
+                        ctx.arc(keypoint.position.x, keypoint.position.y, 10 * scale, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#FF0000';
+                        ctx.fill();
+                    }
+                });
+            } else {
+                tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+                tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+            }
+        }
     }
 }

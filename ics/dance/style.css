@@ -47,8 +47,8 @@ html, body {
 }
 
 #instructionVideo {
-  width: 1200px;
-  height: 900px;
+  width: 800px;
+  height: 600px;
   object-fit: cover;
 }
 
@@ -84,7 +84,7 @@ canvas {
   display: block;
 }
 
-#label-container {
+#label-container, #most-confident-prediction {
   margin-top: 20px;
   font-size: 32px;
   font-weight: bold;
