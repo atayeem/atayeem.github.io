@@ -10,7 +10,11 @@ const THRESHOLD_POSE_CONFIDENCE = 0.5;
 
 const explosion_sound = new Audio("explsn.mp3");
 
-function triggerExplosion() {
+function triggerExplosion(a, b) {
+    if (poses_finished[a][b])
+        return;
+
+    poses_finished[a][b] = true;
     explosion_sound.play();
     exploding_now = true;
 
@@ -77,6 +81,18 @@ async function start_video() {
     video.play();
 }
 
+const poses_finished = {
+    1: [false],
+    2: [false, false, false],
+    3: [false],
+    4: [false, false],
+    5: [false],
+    6: [false],
+    7: [false],
+    8: [false],
+    9: [false],
+};
+
 function checkPose(prediction, video) {
     const time = video.currentTime;
     const prob = prediction.probability;
@@ -89,50 +105,53 @@ function checkPose(prediction, video) {
         switch(poseNumber) {
             case '1':
                 if (0.0 <= time && time <= 1.0)
-                    triggerExplosion();
+                    triggerExplosion(1, 0);
                 break;
 
             case '2':
-                if ( 1.0 <= time && time <=  3.0 ||
-                    14.0 <= time && time <= 16.0 ||
-                    19.0 <= time && time <= 21.0)
-                    triggerExplosion();
+                if ( 1.0 <= time && time <=  3.0)
+                    triggerExplosion(2, 0);
+                if (14.0 <= time && time <= 16.0)
+                    triggerExplosion(2, 1);
+                if (19.0 <= time && time <= 21.0)
+                    triggerExplosion(2, 2);
                 break;
 
             case '3':
                 if (2.0 <= time && time <= 5.0)
-                    triggerExplosion();
+                    triggerExplosion(3, 0);
                 break;
 
             case '4':
-                if ( 5.0 <= time && time <=  7.0 ||
-                    13.0 <= time && time <= 14.0)
-                    triggerExplosion();
+                if ( 5.0 <= time && time <=  7.0)
+                    triggerExplosion(4, 0);
+                if (13.0 <= time && time <= 14.0)
+                    triggerExplosion(4, 1);
                 break;
 
             case '5':
                 if (7.0 <= time && time <= 10.0)
-                    triggerExplosion();
+                    triggerExplosion(5, 0);
                 break;
 
             case '6':
                 if (10.0 <= time && time <= 13.0)
-                    triggerExplosion();
+                    triggerExplosion(6, 0);
                 break;
 
             case '7':
                 if (16.0 <= time && time <= 20.0)
-                    triggerExplosion();
+                    triggerExplosion(7, 0);
                 break;
 
             case '8':
                 if (21.0 <= time && time <= 29.0)
-                    triggerExplosion();
+                    triggerExplosion(8, 0);
                 break;
 
             case '9':
                 if (29.0 <= time && time <= 31.0)
-                    triggerExplosion();
+                    triggerExplosion(9, 0);
                 break;
         }
     }
@@ -188,7 +207,7 @@ async function predict() {
             document.getElementById("most-confident-prediction").innerHTML = text_to_write;
         }
         
-        labelContainer.childNodes[i].innerHTML = text_to_write;
+        labelContainer.childNodes[i].innerHTML = text_to_write + poses_finished[i+1].map(x => x ? "✅" : "💀").join("");
     }
 
     checkPose(highest_prediction, document.getElementById('instructionVideo'));
