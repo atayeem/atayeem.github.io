@@ -6,7 +6,7 @@ let model, webcam, ctx, labelContainer, maxPredictions;
 
 let exploding_now = false;
 
-const THRESHOLD_POSE_CONFIDENCE = 0.5;
+const THRESHOLD_POSE_CONFIDENCE = 0.4;
 
 const explosion_sound = new Audio("explsn.mp3");
 
@@ -225,7 +225,7 @@ function drawPose(pose) {
     if (webcam.canvas) {
         ctx.drawImage(webcam.canvas, 0, 0);
         if (pose) {
-            const minPartConfidence = 0.5;
+            const minPartConfidence = 0.2;
             if (exploding_now) {
                 pose.keypoints.forEach(keypoint => {
                     if (keypoint.score > minPartConfidence) {
