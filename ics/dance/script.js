@@ -45,7 +45,7 @@ async function start_all() {
 
     // append/get elements to the DOM
     const canvas = document.getElementById('canvas');
-    canvas.width = 200; canvas.height = 200;
+    canvas.width = 400; canvas.height = 400;
     ctx = canvas.getContext('2d');
     labelContainer = document.getElementById('label-container');
     for (let i = 0; i < maxPredictions; i++) { // and class labels
