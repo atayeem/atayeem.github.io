@@ -6,7 +6,7 @@ let model, webcam, ctx, labelContainer, maxPredictions;
 
 let exploding_now = false;
 
-const THRESHOLD_POSE_CONFIDENCE = 0.4;
+const THRESHOLD_POSE_CONFIDENCE = 0.3;
 
 const explosion_sound = new Audio("explsn.mp3");
 
