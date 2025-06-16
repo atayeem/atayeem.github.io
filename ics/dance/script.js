@@ -130,23 +130,23 @@ function checkPose(prediction, video) {
                 break;
 
             case '4':
-            case '6':
+            case '7':
             case '8':
                 if (20.0 <= time && time <= 30.0)
                     triggerExplosion(8, 0);
                 if ( 4.0 <= time && time <=  8.0)
                     triggerExplosion(4, 0);
+                if (15.0 <= time && time <= 21.0)
+                    triggerExplosion(7, 0);
                 if (12.0 <= time && time <= 15.0)
                     triggerExplosion(4, 1);
+                break;
+
+            case '6':
                 if (9.0 <= time && time <= 14.0)
                     triggerExplosion(6, 0);
                 break;
-
-            case '7':
-                if (15.0 <= time && time <= 21.0)
-                    triggerExplosion(7, 0);
-                break;
-
+            
             case '9':
                 if (28.0 <= time && time <= 32.0)
                     triggerExplosion(9, 0);
