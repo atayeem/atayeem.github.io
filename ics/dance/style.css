@@ -84,9 +84,16 @@ canvas {
   display: block;
 }
 
-#label-container, #most-confident-prediction {
+#label-container {
   margin-top: 20px;
   font-size: 32px;
+  font-weight: bold;
+  line-height: 1.5;
+}
+
+#most-confident-prediction {
+  margin-top: 20px;
+  font-size: 128px;
   font-weight: bold;
   line-height: 1.5;
 }
