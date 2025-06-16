@@ -151,6 +151,9 @@ function checkPose(prediction, video) {
                 if (28.0 <= time && time <= 32.0)
                     triggerExplosion(9, 0);
                 break;
+
+            default:
+                alert("Dude!!! It broke!!");
         }
     }
 }
