@@ -208,7 +208,7 @@ async function predict() {
             highest_confidence = confidence;
             highest_tag = tag;
             highest_prediction = prediction[i];
-            document.getElementById("most-confident-prediction").innerHTML = text_to_write;
+            // document.getElementById("most-confident-prediction").innerHTML = text_to_write;
         }
         
         labelContainer.childNodes[i].innerHTML = text_to_write + poses_finished[i+1].map(x => x ? "✅" : "💀").join("");
