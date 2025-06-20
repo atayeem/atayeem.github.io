@@ -9,10 +9,11 @@ let exploding_now = false;
 const THRESHOLD_POSE_CONFIDENCE = 0.3;
 
 function triggerExplosion(a, b) {
-    let explosion_sound = new Audio("explsn.mp3");
     if (poses_finished[a][b])
         return;
-
+    
+    let explosion_sound = new Audio("explsn.mp3");
+    
     poses_finished[a][b] = true;
     explosion_sound.play();
     exploding_now = true;
