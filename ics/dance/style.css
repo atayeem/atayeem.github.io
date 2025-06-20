@@ -93,7 +93,7 @@ canvas {
 
 #most-confident-prediction {
   margin-top: 20px;
-  font-size: 128px;
+  font-size: 0px;
   font-weight: bold;
   line-height: 1.5;
 }
