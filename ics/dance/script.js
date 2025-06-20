@@ -97,6 +97,9 @@ function checkPose(prediction, video) {
     const time = video.currentTime;
     const prob = prediction.probability;
 
+    if (!(time > 0))
+        return;
+
     // this is the regex to remove all but numbers 0-9
     const poseNumber = prediction.className.replace(/[^0-9]/g, '');
 
