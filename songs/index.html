@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Vocaloid Song Notes and Keys</title>
@@ -14,7 +15,7 @@
             border-collapse: collapse;
             width: 100%;
         }
-        
+
         tr:nth-child(even) {
             background-color: #D6EEEE;
         }
@@ -35,12 +36,13 @@
         th.sorted-asc::after {
             content: " ▲";
         }
-        
+
         th.sorted-desc::after {
             content: " ▼";
         }
     </style>
 </head>
+
 <body>
     <script>
         const SORT_BY = {
@@ -50,58 +52,126 @@
         };
 
         function sortTable(n) {
-          var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-          table = document.getElementById("table-primary");
-          switching = true;
-          // Set the sorting direction to ascending:
-          dir = "asc";
-          /* Make a loop that will continue until
-          no switching has been done: */
-          while (switching) {
-            // Start by saying: no switching is done:
-            switching = false;
-            rows = table.rows;
-            /* Loop through all table rows (except the
-            first, which contains table headers): */
-            for (i = 1; i < (rows.length - 1); i++) {
-              // Start by saying there should be no switching:
-              shouldSwitch = false;
-              /* Get the two elements you want to compare,
-              one from current row and one from the next: */
-              x = rows[i].getElementsByTagName("TD")[n];
-              y = rows[i + 1].getElementsByTagName("TD")[n];
-              /* Check if the two rows should switch place,
-              based on the direction, asc or desc: */
-              if (dir == "asc") {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                  // If so, mark as a switch and break the loop:
-                  shouldSwitch = true;
-                  break;
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("table-primary");
+            switching = true;
+            // Set the sorting direction to ascending:
+            dir = "asc";
+            /* Make a loop that will continue until
+            no switching has been done: */
+            while (switching) {
+                // Start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /* Loop through all table rows (except the
+                first, which contains table headers): */
+                for (i = 1; i < (rows.length - 1); i++) {
+                    // Start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /* Get the two elements you want to compare,
+                    one from current row and one from the next: */
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /* Check if the two rows should switch place,
+                    based on the direction, asc or desc: */
+
+                    if (n == SORT_BY.key) {
+                        if (dir == "asc") {
+                            const xText = x.innerHTML.toLowerCase();
+                            const yText = y.innerHTML.toLowerCase();
+
+                            const xIsMinor = xText.endsWith("minor");
+                            const yIsMinor = yText.endsWith("minor");
+
+                            const xIsMajor = xText.endsWith("major");
+                            const yIsMajor = yText.endsWith("major");
+
+                            let shouldSwitchNow = false;
+
+                            if (xIsMinor !== yIsMinor || xIsMajor !== yIsMajor) {
+                                // "major" should come before "minor"
+                                if (xIsMinor && !yIsMinor) {
+                                    shouldSwitchNow = true;
+                                }
+                                if (!xIsMinor && yIsMinor) {
+                                    shouldSwitchNow = false;
+                                }
+                            } else {
+                                // Fallback to alphabetical
+                                if (xText > yText) {
+                                    shouldSwitchNow = true;
+                                }
+                            }
+
+                            if (shouldSwitchNow) {
+                                shouldSwitch = true;
+                                break;
+                            }
+
+                        } else if (dir == "desc") {
+                            const xText = x.innerHTML.toLowerCase();
+                            const yText = y.innerHTML.toLowerCase();
+
+                            const xIsMinor = xText.endsWith("minor");
+                            const yIsMinor = yText.endsWith("minor");
+
+                            const xIsMajor = xText.endsWith("major");
+                            const yIsMajor = yText.endsWith("major");
+
+                            let shouldSwitchNow = false;
+
+                            if (xIsMinor !== yIsMinor || xIsMajor !== yIsMajor) {
+                                // "minor" should come before "major" in descending
+                                if (xIsMinor && !yIsMinor) {
+                                    shouldSwitchNow = false;
+                                }
+                                if (!xIsMinor && yIsMinor) {
+                                    shouldSwitchNow = true;
+                                }
+                            } else {
+                                // Fallback to reverse alphabetical
+                                if (xText < yText) {
+                                    shouldSwitchNow = true;
+                                }
+                            }
+
+                            if (shouldSwitchNow) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        if (dir == "asc") {
+                            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
                 }
-              } else if (dir == "desc") {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                  // If so, mark as a switch and break the loop:
-                  shouldSwitch = true;
-                  break;
+                if (shouldSwitch) {
+                    /* If a switch has been marked, make the switch
+                    and mark that a switch has been done: */
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    // Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /* If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again. */
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
                 }
-              }
             }
-            if (shouldSwitch) {
-              /* If a switch has been marked, make the switch
-              and mark that a switch has been done: */
-              rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-              switching = true;
-              // Each time a switch is done, increase this count by 1:
-              switchcount ++;
-            } else {
-              /* If no switching has been done AND the direction is "asc",
-              set the direction to "desc" and run the while loop again. */
-              if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-              }
-            }
-          }
+            headers.forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+            header.classList.add(currentDirection === "asc" ? "sorted-asc" : "sorted-desc");
         }
     </script>
     <table id="table-primary">
@@ -115,104 +185,105 @@
             <td>A</td>
             <td>A minor</td>
             <td>Wind over the flower</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/wind_over_the_flower.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>A</td>
             <td>C major</td>
             <td>Konton Boogie</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/konton_boogie.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>A</td>
-            <td>G minor?</td>
+            <td>?G minor</td>
             <td>Zako</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/zako.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>B</td>
             <td>E minor</td>
             <td>Lagtrain</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/lagtrain.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>C#/Db</td>
             <td>Bb minor</td>
             <td>Heat abnormal</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/heat_abnormal.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>C#/Db</td>
             <td>C# minor</td>
             <td>Tetoris</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/tetoris.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>C#/Db</td>
-            <td>E major / C# minor</td>
+            <td>?C# minor</td>
             <td>Override</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/override.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>D</td>
             <td>D minor</td>
             <td>A sardine grows from the soil</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/sardines.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>D</td>
             <td>B minor</td>
-            <td>Rolling girl</td>
-            <td></td>
+            <td>Rollin girl</td>
+            <td><audio controls><source src="/table_songs/rollin_girl.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>D</td>
             <td>D minor</td>
             <td>Rot for Clout</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/rot_for_clout.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>D#/Eb</td>
             <td>D# minor</td>
             <td>BUG</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/bug.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>E</td>
             <td>E minor</td>
             <td>Matryoshka (chorus)</td>
-            <td></td>
+            <td>Audio needed</td>
         </tr>
         <tr>
             <td>E</td>
             <td>E minor</td>
             <td>Lost One's Weeping</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/lost_ones_weeping.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>F#/Gb</td>
             <td>D# minor</td>
             <td>Marshall Maximizer</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/marshall_maximizer.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>G#/Ab</td>
             <td>E major</td>
             <td>Kyu kurarin</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/kyu_kurarin.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>G#/Ab</td>
             <td>E major</td>
             <td>Matryoshka</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/matryoshka.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
         <tr>
             <td>G#/Ab</td>
-            <td>Eb minor?</td>
+            <td>?Eb minor</td>
             <td>It was all a dream!</td>
-            <td></td>
+            <td><audio controls><source src="/table_songs/it_was_all_a_dream.mp3" type="audio/mpeg">Couldn't load audio.</audio></td>
         </tr>
     </table>
 </body>
+
 </html>
